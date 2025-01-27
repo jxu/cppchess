@@ -1,2 +1,2 @@
-chess: chess.cpp
-	g++ -O2 -D_GLIBCXX_DEBUG -Wall -Wextra -o chess chess.cpp
+test:
+	g++ -O2 -Wall -Wextra -o chess chess.cpp 

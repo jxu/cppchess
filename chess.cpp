@@ -42,14 +42,14 @@ bool is_black(Piece p)
    
 
       a  b  c  d  e  f  g  h
-   8 70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D 7E 7F 
-   7 60 61 ...
-   6 50
-   5 40
-   4 30
-   3 20
-   2 10
-   1 00
+   8 70 71 72 73 74 75 76 77|78 79 7A 7B 7C 7D 7E 7F 
+   7 60 61 ...              |
+   6 50                     |
+   5 40                     |
+   4 30                     |
+   3 20                     |
+   2 10                     |
+   1 00                     |
 
 */
 
@@ -215,7 +215,7 @@ void test_read_fen(void)
 {
     //Position empty("8/8/8/8/8/8/8/8 w - - 0 1");
 
-    /* Starting position 
+    /* Test starting position 
 
         a b c d e f g h
       8 r n b q k b n r
@@ -228,43 +228,38 @@ void test_read_fen(void)
       1 R N B Q K B N R
      */
 
-    Position p("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    Position pos("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 
     // layout in array order 00 to 7F
 
+    // first rank pieces
+    Piece rank0[8] = 
+        {ROOK,   KNIGHT, BISHOP, QUEEN,  KING,   BISHOP, KNIGHT, ROOK};
 
-
-    Board b = 
+    for (int r = 0; r < 8; ++r)
     {
-        ROOK,   KNIGHT, BISHOP, QUEEN,  KING,   BISHOP, KNIGHT, ROOK,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-        
-        PAWN,PAWN,PAWN,PAWN,PAWN,PAWN,PAWN,PAWN,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
+        for (int f = 0; f < 8; ++f) // only test actual board
+        {
+            Piece p = pos.board[sqind(r,f)];
 
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-
-
-        -PAWN,-PAWN,-PAWN,-PAWN,-PAWN,-PAWN,-PAWN,-PAWN,        
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-
-        -ROOK,   -KNIGHT, -BISHOP, -QUEEN,  -KING,   -BISHOP, -KNIGHT, -ROOK,
-        EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
-    };
-    
-    assert(p.board == b); // array equality
-
-    cout << print_board(p.board) << endl;
+            switch (r)
+            {
+                case 0:
+                    assert(p == rank0[f]);
+                    break;
+                case 1:
+                    assert(p == PAWN);
+                    break;
+                case 6:
+                    assert(p == -PAWN);
+                    break;
+                case 7:
+                    assert(p == -rank0[f]);
+                default:
+                    assert(p == EMPTY);
+            }
+        }
+    }
 }
 
 

@@ -84,10 +84,10 @@ struct Position
 {
     Board board;
     bool black_to_move;  
-    bool wcastlek; // white castle kingside
-    bool wcastleq;
-    bool bcastlek;
-    bool bcastleq;
+    bool wcastlek = false; // white castle kingside
+    bool wcastleq = false;
+    bool bcastlek = false;
+    bool bcastleq = false;
 
     SquareIndex en_passant_target; // can only be rank 3 or 6
     // 0 represents none
@@ -174,6 +174,32 @@ struct Position
         }
 
         // read remaining info
+        // side to move: w or b
+        char side;
+        buf >> side;
+
+        if (side == 'w')
+            black_to_move = false;
+        else if (side == 'b')
+            black_to_move = true;
+        else
+            throw std::invalid_argument("expected side w or b");
+
+        // castling rights (default none)
+        // - or letters in KQkq
+        string castling; 
+        buf >> castling;
+
+        // doesn't check for invalid characters
+        for (char c : castling)
+        {
+            if (c == 'K') wcastlek = true;
+            if (c == 'Q') wcastleq = true;
+            if (c == 'k') bcastlek = true;
+            if (c == 'q') bcastleq = true;
+        }
+        
+
 
     }
 };
@@ -255,11 +281,17 @@ void test_read_fen(void)
                     break;
                 case 7:
                     assert(p == -rank0[f]);
+                    break;
                 default:
                     assert(p == EMPTY);
             }
         }
     }
+
+    assert(pos.wcastlek);
+    assert(pos.wcastleq);
+    assert(pos.bcastlek);
+    assert(pos.bcastleq);
 }
 
 

@@ -1,13 +1,13 @@
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
 #include <iostream>
 #include <cassert>
 #include <array>
 #include <cctype>
 #include <sstream>
+#include <doctest.h>
 
-using namespace std;
-
-typedef char Piece; // pretend type safety
+typedef unsigned char uchar;
 
 // TODO: enum?
 // + sign is white, - sign is black
@@ -19,17 +19,12 @@ const char ROOK = 4;
 const char QUEEN = 5;
 const char KING = 6;
 
-typedef unsigned char uchar;
-typedef char SquareIndex; // 0..63 
-
-
-
 
 const bool WHITE = 0;
 const bool BLACK = 1;
 
 // color of piece determined by sign 
-bool is_black(Piece p)
+bool is_black(char p)
 {
     return (p < 0);
 }
@@ -41,20 +36,20 @@ bool is_black(Piece p)
    the 0-indexed rank and file are indexed as 0b0rrr0fff
    
 
-      a  b  c  d  e  f  g  h
-   8 70 71 72 73 74 75 76 77|78 79 7A 7B 7C 7D 7E 7F 
-   7 60 61 ...              |
-   6 50                     |
-   5 40                     |
-   4 30                     |
-   3 20                     |
-   2 10                     |
-   1 00                     |
+       a  b  c  d  e  f  g  h
+    8 70 71 72 73 74 75 76 77|78 79 7A 7B 7C 7D 7E 7F
+    7 60 61 62 63 64 65 66 67|
+    6 50 51 52 53 54 55 56 57|
+    5 40 41 42 43 44 45 46 47|
+    4 30 31 32 33 34 35 36 37|
+    3 20 21 22 23 24 25 26 27|
+    2 10 11 12 13 14 15 16 17|
+    1 00 01 02 03 04 05 06 07|
 
 */
 
 
-typedef std::array<Piece, 128> Board;
+typedef std::array<char, 128> Board;
 
 // Coordinate transformations (all 0-indexed)
 // rank index 0-7 encodes ranks 1-8
@@ -76,6 +71,12 @@ char sqfile(char sq)
     return sq >> 4;
 }
 
+// magic of the board
+bool sqvalid(unsigned char sq)
+{
+    return ((sq & 0x88) == 0);
+}
+
 
 // Based on FEN
 
@@ -89,12 +90,12 @@ struct Position
     bool bcastlek = false;
     bool bcastleq = false;
 
-    SquareIndex en_passant_target; // can only be rank 3 or 6
+    int en_passant_target; // can only be rank 3 or 6
     // 0 represents none
     
-    // TODO: castling rights, en passant square, halfmove clock
+    // TODO: use iostream to split into fields rather than char by char
 
-
+    
     Position(const std::string& FEN)
     {   
         board.fill(EMPTY);
@@ -122,7 +123,7 @@ struct Position
                 }
                 else // piece given by letter
                 {
-                    Piece piece;
+                    char piece;
                     bool is_black = std::islower(c);
                     c = std::toupper(c);
 
@@ -145,7 +146,7 @@ struct Position
                             throw std::invalid_argument("unrecognized piece");
                     }
 
-                    SquareIndex ind = sqind(rank, file);
+                    char ind = sqind(rank, file);
 
                     // write piece to board
                     board[ind] = is_black ? -piece : piece;
@@ -187,7 +188,7 @@ struct Position
 
         // castling rights (default none)
         // - or letters in KQkq
-        string castling; 
+        std::string castling; 
         buf >> castling;
 
         // doesn't check for invalid characters
@@ -206,7 +207,7 @@ struct Position
 
 
 
-std::string get_square_name(SquareIndex s)
+std::string get_square_name(char s)
 {
     char r = '1' + sqrank(s);
     char f = 'a' + sqfile(s);
@@ -237,7 +238,7 @@ std::string print_board(const Board& board)
     return s;
 }
 
-void test_read_fen(void)
+TEST_CASE("read fen")
 {
     //Position empty("8/8/8/8/8/8/8/8 w - - 0 1");
 
@@ -259,39 +260,39 @@ void test_read_fen(void)
     // layout in array order 00 to 7F
 
     // first rank pieces
-    Piece rank0[8] = 
+    char rank0[8] = 
         {ROOK,   KNIGHT, BISHOP, QUEEN,  KING,   BISHOP, KNIGHT, ROOK};
 
     for (int r = 0; r < 8; ++r)
     {
         for (int f = 0; f < 8; ++f) // only test actual board
         {
-            Piece p = pos.board[sqind(r,f)];
+            char p = pos.board[sqind(r,f)];
 
             switch (r)
             {
                 case 0:
-                    assert(p == rank0[f]);
+                    CHECK(p == rank0[f]);
                     break;
                 case 1:
-                    assert(p == PAWN);
+                    CHECK(p == PAWN);
                     break;
                 case 6:
-                    assert(p == -PAWN);
+                    CHECK(p == -PAWN);
                     break;
                 case 7:
-                    assert(p == -rank0[f]);
+                    CHECK(p == -rank0[f]);
                     break;
                 default:
-                    assert(p == EMPTY);
+                    CHECK(p == EMPTY);
             }
         }
     }
 
-    assert(pos.wcastlek);
-    assert(pos.wcastleq);
-    assert(pos.bcastlek);
-    assert(pos.bcastleq);
+    CHECK(pos.wcastlek);
+    CHECK(pos.wcastleq);
+    CHECK(pos.bcastlek);
+    CHECK(pos.bcastleq);
 }
 
 
@@ -299,15 +300,10 @@ void test_read_fen(void)
 
 struct Move
 {
-    SquareIndex from;
-    SquareIndex to;
-    bool is_promotion;
-    Piece promotion;
+    char from;
+    char to;
+    char extra_info;
 };
 
 
-// test cases for now
-int main()
-{
-    test_read_fen();
-}
+

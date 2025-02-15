@@ -1,11 +1,8 @@
-
 #include <iostream>
 #include <cassert>
 #include <array>
 #include <cctype>
 #include <sstream>
-
-using namespace std;
 
 typedef char Piece; // pretend type safety
 
@@ -20,20 +17,13 @@ const char QUEEN = 5;
 const char KING = 6;
 
 typedef unsigned char uchar;
-typedef char SquareIndex; // 0..63 
 
-
-
-
-const bool WHITE = 0;
-const bool BLACK = 1;
 
 // color of piece determined by sign 
 bool is_black(Piece p)
 {
     return (p < 0);
 }
-
 
 
 /* 0x88 board 
@@ -89,7 +79,7 @@ struct Position
     bool bcastlek = false;
     bool bcastleq = false;
 
-    SquareIndex en_passant_target; // can only be rank 3 or 6
+    char en_passant_target; // can only be rank 3 or 6
     // 0 represents none
     
     // TODO: castling rights, en passant square, halfmove clock
@@ -145,7 +135,7 @@ struct Position
                             throw std::invalid_argument("unrecognized piece");
                     }
 
-                    SquareIndex ind = sqind(rank, file);
+                    char ind = sqind(rank, file);
 
                     // write piece to board
                     board[ind] = is_black ? -piece : piece;
@@ -187,7 +177,7 @@ struct Position
 
         // castling rights (default none)
         // - or letters in KQkq
-        string castling; 
+        std::string castling; 
         buf >> castling;
 
         // doesn't check for invalid characters
@@ -206,7 +196,7 @@ struct Position
 
 
 
-std::string get_square_name(SquareIndex s)
+std::string get_square_name(char s)
 {
     char r = '1' + sqrank(s);
     char f = 'a' + sqfile(s);
@@ -296,14 +286,6 @@ void test_read_fen(void)
 
 
 // TODO: encode move in from-to in 16-bits
-
-struct Move
-{
-    SquareIndex from;
-    SquareIndex to;
-    bool is_promotion;
-    Piece promotion;
-};
 
 
 // test cases for now

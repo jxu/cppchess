@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <cassert>
 #include <array>
@@ -284,12 +286,3 @@ void test_read_fen(void)
     assert(pos.bcastleq);
 }
 
-
-// TODO: encode move in from-to in 16-bits
-
-
-// test cases for now
-int main()
-{
-    test_read_fen();
-}

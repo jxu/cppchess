@@ -5,8 +5,11 @@
 #include <array>
 #include <cctype>
 #include <sstream>
+#include <cstdint>
 
-typedef char Piece; // pretend type safety
+// pretend type safety
+typedef char Piece; 
+typedef char Square; // enough for 0x88, squares 00 to 7F
 
 // TODO: enum?
 // + sign is white, - sign is black

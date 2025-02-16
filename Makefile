@@ -1,2 +1,2 @@
-test: 
-	g++ -O2 -Wall -Wextra -o test test.cpp 
+test: *.hpp
+	g++ -Wall -Wextra -o test test.cpp 
